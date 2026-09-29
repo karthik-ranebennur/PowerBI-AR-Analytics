@@ -1,0 +1,96 @@
+AR ANALYTICS — POWER BI DATA MODEL
+
+Tables Used
+
+1. AR_INVOICES
+2. AR_PAYMENTS
+3. AR_CUSTOMERS
+4. AR_EMPLOYEES
+5. AR_DEPARTMENTS
+6. AR_COLLECTION_TARGET
+7. Calendar
+
+Main Table
+
+AR_INVOICES
+
+The main transactional table containing invoice-level Accounts Receivable information.
+
+Key fields include:
+
+* Invoice ID
+* Customer ID
+* Invoice Amount
+* Invoice Date
+* Due Date
+* Invoice Status
+
+Payment Table
+
+AR_PAYMENTS
+
+Contains payment transactions associated with invoices.
+
+Key fields include:
+
+* Payment ID
+* Invoice ID
+* Payment Amount
+* Payment Date
+
+Dimension Tables
+
+AR_CUSTOMERS
+
+Contains customer master information used for customer-level analysis.
+
+AR_EMPLOYEES
+
+Contains employee information used for employee-level analysis.
+
+AR_DEPARTMENTS
+
+Contains department information used for department-level analysis.
+
+Target Table
+
+AR_COLLECTION_TARGET
+
+Contains collection target information used to compare actual collections against targets.
+
+Date Table
+
+Calendar
+
+Dedicated date table used for time-based analysis.
+
+Important columns:
+
+* Date
+* Year
+* Month
+* Month Number
+* Month Name
+* Month Year
+
+Relationships
+
+The model connects invoice, payment, customer, employee, department, target, and calendar information to support Accounts Receivable analysis.
+
+The Calendar table is used for time-based reporting.
+
+Invoice and payment relationships were designed carefully to avoid ambiguous filtering and incorrect aggregation.
+
+Modeling Approach
+
+The model was designed to support analysis by:
+
+* Customer
+* Invoice
+* Payment
+* Employee
+* Department
+* Date
+* Collection Target
+
+The model enables interactive Power BI analysis while maintaining appropriate filter propagation between transactional and supporting tables.
