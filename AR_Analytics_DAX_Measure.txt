@@ -1,0 +1,142 @@
+AR ANALYTICS — DAX MEASURES
+
+1. Total Invoice
+
+Total Invoice =
+COUNTROWS(AR_INVOICES)
+
+2. Total Invoice Amount
+
+Total Invoice Amount =
+SUM(AR_INVOICES[INVOICE_AMOUNT])
+
+3. Total Paid Amount
+
+Total Paid Amount =
+SUM(AR_PAYMENTS[PAYMENT_AMOUNT])
+
+4. Outstanding Amount
+
+Outstanding Amount =
+[Total Invoice Amount] - [Total Paid Amount]
+
+5. Collection %
+
+Collection % =
+DIVIDE(
+    [Total Paid Amount],
+    [Total Invoice Amount],
+    0
+)
+
+6. Paid %
+
+Paid % =
+DIVIDE(
+    [Total Paid Amount],
+    [Total Invoice Amount],
+    0
+)
+
+7. Outstanding %
+
+Outstanding % =
+DIVIDE(
+    [Outstanding Amount],
+    [Total Invoice Amount],
+    0
+)
+
+8. Overdue Amount
+
+Calculates the outstanding amount associated with overdue invoices.
+
+Overdue Amount =
+CALCULATE(
+    [Outstanding Amount],
+    AR_INVOICES[STATUS] = "Overdue"
+)
+
+9. Overdue %
+
+Overdue % =
+DIVIDE(
+    [Overdue Amount],
+    [Total Invoice Amount],
+    0
+)
+
+10. Current Amount
+
+Calculates outstanding receivables that are currently due/current.
+
+Current Amount =
+CALCULATE(
+    [Outstanding Amount],
+    AR_INVOICES[AGING_BUCKET] = "Current"
+)
+
+11. 1–30 Days Amount
+
+1-30 Days Amount =
+CALCULATE(
+    [Outstanding Amount],
+    AR_INVOICES[AGING_BUCKET] = "1-30 Days"
+)
+
+12. 31–60 Days Amount
+
+31-60 Days Amount =
+CALCULATE(
+    [Outstanding Amount],
+    AR_INVOICES[AGING_BUCKET] = "31-60 Days"
+)
+
+13. 61–90 Days Amount
+
+61-90 Days Amount =
+CALCULATE(
+    [Outstanding Amount],
+    AR_INVOICES[AGING_BUCKET] = "61-90 Days"
+)
+
+14. 90+ Days Amount
+
+90+ Days Amount =
+CALCULATE(
+    [Outstanding Amount],
+    AR_INVOICES[AGING_BUCKET] = "90+ Days"
+)
+
+DAX Concepts Used
+
+The project demonstrates practical use of:
+
+* SUM
+* COUNTROWS
+* DIVIDE
+* CALCULATE
+* FILTER
+* VALUES
+* ALL
+* REMOVEFILTERS
+* KEEPFILTERS
+* IF
+* Row Context
+* Filter Context
+* Context Transition
+* Aging Analysis
+* KPI Measures
+
+Purpose
+
+These measures were used to build the Accounts Receivable dashboard and analyze:
+
+* Invoice value
+* Collections
+* Outstanding receivables
+* Overdue receivables
+* Collection percentage
+* Outstanding percentage
+* Aging buckets
+* 90+ day outstanding amounts
