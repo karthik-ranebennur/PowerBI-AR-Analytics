@@ -1,0 +1,757 @@
+Finance / AR SQL Project 
+
+Finance / Accounts Receivable Analytics Project
+
+Complete 6-Table SQL Project
+
+
+TABLES:
+1. AR_DEPARTMENTS 5 rows
+2. AR_EMPLOYEES 25 rows
+3. AR_CUSTOMERS 500 rows
+4. AR_INVOICES 10,000 rows
+5. AR_PAYMENTS 8,000 rows
+6. AR_COLLECTION_TARGETS 
+
+
+Step 1: Departments
+
+CREATE TABLE ar_departments (
+department_id NUMBER PRIMARY KEY,
+department_name VARCHAR2(50)
+);
+INSERT INTO ar_departments VALUES
+(1, 'Accounts Receivable');
+INSERT INTO ar_departments VALUES
+(2, 'Collections');
+INSERT INTO ar_departments VALUES
+(3, 'Billing');
+INSERT INTO ar_departments VALUES
+(4, 'Finance');
+INSERT INTO ar_departments VALUES
+(5, 'Cash Application');
+COMMIT;
+
+Step 2: Employees
+
+CREATE TABLE ar_employees (
+employee_id NUMBER PRIMARY KEY,
+employee_name VARCHAR2(100),
+department_id NUMBER,
+job_role VARCHAR2(50),
+region VARCHAR2(50),
+CONSTRAINT fk_ar_emp_dept
+FOREIGN KEY (department_id)
+REFERENCES ar_departments(department_id)
+);
+INSERT INTO ar_employees VALUES
+(1001, 'Rahul', 1, 'AR Analyst', 'India');
+INSERT INTO ar_employees VALUES
+(1002, 'Priya', 1, 'Senior AR Analyst', 'India');
+INSERT INTO ar_employees VALUES
+(1003, 'Amit', 2, 'Collection Analyst', 'India');
+INSERT INTO ar_employees VALUES
+(1004, 'Sneha', 2, 'Collection Specialist', 'India');
+INSERT INTO ar_employees VALUES
+Finance / AR SQL Project • Page 2
+(1005, 'Kiran', 3, 'Billing Analyst', 'India');
+INSERT INTO ar_employees VALUES
+(1006, 'Anjali', 4, 'Finance Analyst', 'India');
+INSERT INTO ar_employees VALUES
+(1007, 'Vikram', 5, 'Cash Application Analyst', 'India');
+INSERT INTO ar_employees VALUES
+(1008, 'Neha', 1, 'AR Analyst', 'North America');
+INSERT INTO ar_employees VALUES
+(1009, 'Rohit', 2, 'Collection Analyst', 'North America');
+INSERT INTO ar_employees VALUES
+(1010, 'Divya', 3, 'Billing Analyst', 'North America');
+INSERT INTO ar_employees VALUES
+(1011, 'Arun', 4, 'Finance Analyst', 'North America');
+INSERT INTO ar_employees VALUES
+(1012, 'Meena', 5, 'Cash Application Analyst', 'North America');
+INSERT INTO ar_employees VALUES
+(1013, 'Suresh', 1, 'AR Analyst', 'Europe');
+INSERT INTO ar_employees VALUES
+(1014, 'Pooja', 2, 'Collection Analyst', 'Europe');
+INSERT INTO ar_employees VALUES
+(1015, 'Nikhil', 3, 'Billing Analyst', 'Europe');
+INSERT INTO ar_employees VALUES
+(1016, 'Swathi', 4, 'Finance Analyst', 'Europe');
+INSERT INTO ar_employees VALUES
+(1017, 'Manoj', 5, 'Cash Application Analyst', 'Europe');
+INSERT INTO ar_employees VALUES
+(1018, 'Deepa', 1, 'AR Analyst', 'APAC');
+INSERT INTO ar_employees VALUES
+(1019, 'Vijay', 2, 'Collection Analyst', 'APAC');
+INSERT INTO ar_employees VALUES
+(1020, 'Kavya', 3, 'Billing Analyst', 'APAC');
+INSERT INTO ar_employees VALUES
+(1021, 'Ramesh', 4, 'Finance Analyst', 'APAC');
+INSERT INTO ar_employees VALUES
+(1022, 'Shalini', 5, 'Cash Application Analyst', 'APAC');
+INSERT INTO ar_employees VALUES
+(1023, 'Ajay', 1, 'AR Analyst', 'Middle East');
+INSERT INTO ar_employees VALUES
+(1024, 'Nandini', 2, 'Collection Analyst', 'Middle East');
+INSERT INTO ar_employees VALUES
+(1025, 'Karthik', 3, 'Billing Analyst', 'Middle East');
+COMMIT;
+
+Step 3: Customers
+
+CREATE TABLE ar_customers (
+customer_id NUMBER PRIMARY KEY,
+customer_name VARCHAR2(100),
+country VARCHAR2(50),
+region VARCHAR2(50),
+industry VARCHAR2(50),
+customer_type VARCHAR2(30),
+credit_limit NUMBER(14,2),
+assigned_employee_id NUMBER,
+CONSTRAINT fk_ar_customer_emp
+FOREIGN KEY (assigned_employee_id)
+REFERENCES ar_employees(employee_id)
+);
+INSERT INTO ar_customers
+SELECT
+20000 + LEVEL AS customer_id,
+'Customer_' || LPAD(LEVEL, 4, '0') AS customer_name,
+CASE MOD(LEVEL, 8)
+WHEN 0 THEN 'USA'
+WHEN 1 THEN 'India'
+WHEN 2 THEN 'UK'
+WHEN 3 THEN 'Canada'
+WHEN 4 THEN 'Germany'
+WHEN 5 THEN 'Australia'
+WHEN 6 THEN 'Singapore'
+WHEN 7 THEN 'UAE'
+END AS country,
+CASE MOD(LEVEL, 8)
+WHEN 0 THEN 'North America'
+WHEN 1 THEN 'India'
+WHEN 2 THEN 'Europe'
+WHEN 3 THEN 'North America'
+WHEN 4 THEN 'Europe'
+WHEN 5 THEN 'APAC'
+WHEN 6 THEN 'APAC'
+WHEN 7 THEN 'Middle East'
+END AS region,
+CASE MOD(LEVEL, 7)
+WHEN 0 THEN 'Technology'
+WHEN 1 THEN 'Telecom'
+WHEN 2 THEN 'Healthcare'
+WHEN 3 THEN 'Manufacturing'
+WHEN 4 THEN 'Retail'
+WHEN 5 THEN 'Finance'
+WHEN 6 THEN 'Logistics'
+END AS industry,
+CASE
+WHEN MOD(LEVEL, 3) = 0 THEN 'Enterprise'
+WHEN MOD(LEVEL, 3) = 1 THEN 'Mid-Market'
+ELSE 'SMB'
+END AS customer_type,
+CASE
+WHEN MOD(LEVEL, 3) = 0 THEN 1000000
+WHEN MOD(LEVEL, 3) = 1 THEN 500000
+ELSE 150000
+END AS credit_limit,
+1001 + MOD(LEVEL - 1, 25) AS assigned_employee_id
+FROM dual
+CONNECT BY LEVEL <= 500;
+COMMIT;
+
+
+Customer Validation
+
+SELECT COUNT(*) AS total_customers
+FROM ar_customers;
+SELECT customer_type,
+COUNT(*) AS customer_count
+FROM ar_customers
+GROUP BY customer_type;
+SELECT region,
+COUNT(*) AS customer_count
+FROM ar_customers
+GROUP BY region
+ORDER BY customer_count DESC;
+
+Step 4: Invoices
+
+CREATE TABLE ar_invoices (
+invoice_id NUMBER PRIMARY KEY,
+customer_id NUMBER,
+employee_id NUMBER,
+invoice_date DATE,
+due_date DATE,
+invoice_amount NUMBER(14,2),
+invoice_status VARCHAR2(30),
+currency_code VARCHAR2(3),
+CONSTRAINT fk_ar_invoice_customer
+FOREIGN KEY (customer_id)
+REFERENCES ar_customers(customer_id),
+CONSTRAINT fk_ar_invoice_emp
+FOREIGN KEY (employee_id)
+REFERENCES ar_employees(employee_id)
+);
+
+GENERATE 10,000 INVOICES
+
+INSERT INTO ar_invoices
+SELECT
+300000 + LEVEL AS invoice_id,
+20001 + MOD(LEVEL - 1, 500) AS customer_id,
+1001 + MOD(LEVEL - 1, 25) AS employee_id,
+ADD_MONTHS(
+DATE '2024-01-01',
+MOD(LEVEL - 1, 33)
+) + MOD(LEVEL - 1, 25) AS invoice_date,
+ADD_MONTHS(
+DATE '2024-01-01',
+MOD(LEVEL - 1, 33)
+) + MOD(LEVEL - 1, 25) + 30 AS due_date,
+150000
++ 1517
++ CASE
+WHEN MOD(LEVEL, 2) = 0 THEN 1
+ELSE 0
+END AS invoice_amount,
+CASE
+WHEN LEVEL <= 1000 THEN 'Open'
+WHEN LEVEL <= 3000 THEN 'Overdue'
+WHEN LEVEL <= 8000 THEN 'Paid'
+ELSE 'Partially Paid'
+END AS invoice_status,
+CASE MOD(LEVEL, 3)
+WHEN 0 THEN 'USD'
+WHEN 1 THEN 'EUR'
+ELSE 'INR'
+END AS currency_code
+FROM dual
+CONNECT BY LEVEL <= 10000;
+COMMIT;
+
+Invoice Validation
+
+SELECT COUNT(*) AS total_invoices
+FROM ar_invoices;
+SELECT
+COUNT(*) AS total_invoices,
+SUM(invoice_amount) AS total_invoice_amount
+FROM ar_invoices;
+SELECT invoice_id,
+customer_id,
+employee_id,
+invoice_date,
+due_date,
+invoice_amount,
+invoice_status,
+currency_code
+FROM ar_invoices
+WHERE ROWNUM <= 10;
+SELECT invoice_status,
+COUNT(*) AS invoice_count,
+SUM(invoice_amount) AS total_amount
+FROM ar_invoices
+GROUP BY invoice_status
+ORDER BY invoice_status;
+
+Step 5: Payments
+
+CREATE TABLE ar_payments (
+payment_id NUMBER PRIMARY KEY,
+invoice_id NUMBER,
+customer_id NUMBER,
+payment_amount NUMBER(14,2),
+payment_date DATE,
+payment_method VARCHAR2(30),
+payment_status VARCHAR2(30),
+CONSTRAINT fk_ar_payment_invoice
+FOREIGN KEY (invoice_id)
+REFERENCES ar_invoices(invoice_id),
+CONSTRAINT fk_ar_payment_customer
+FOREIGN KEY (customer_id)
+REFERENCES ar_customers(customer_id)
+);
+
+GENERATE 8,000 PAYMENTS
+
+INSERT INTO ar_payments
+SELECT
+50000 + LEVEL AS payment_id,
+300000 + LEVEL AS invoice_id,
+20001 + MOD(LEVEL - 1, 500) AS customer_id,
+FLOOR(
+(
+150000
++ 1517
++ CASE
+WHEN MOD(LEVEL, 2) = 0 THEN 1
+ELSE 0
+END
+) * 0.75
+)
++ 28
++ CASE
+WHEN LEVEL <= 6904 THEN 1
+ELSE 0
+END AS payment_amount,
+ADD_MONTHS(
+DATE '2024-01-01',
+MOD(LEVEL - 1, 33)
+)
++ MOD(LEVEL - 1, 25)
++ CASE
+WHEN MOD(LEVEL, 2) = 0 THEN 22
+ELSE 23
+END AS payment_date,
+CASE MOD(LEVEL, 4)
+WHEN 0 THEN 'ACH'
+WHEN 1 THEN 'CHEQUE'
+WHEN 2 THEN 'ONLINE'
+ELSE 'BANK'
+END AS payment_method,
+'COMPLETED' AS payment_status
+FROM dual
+CONNECT BY LEVEL <= 8000;
+COMMIT;
+
+Payment Validation
+
+SELECT COUNT(*) AS total_payments
+FROM ar_payments;
+SELECT
+COUNT(*) AS total_payments,
+SUM(payment_amount) AS total_paid_amount
+FROM ar_payments;
+SELECT payment_id,
+invoice_id,
+customer_id,
+payment_amount,
+payment_date,
+payment_method,
+payment_status
+FROM ar_payments
+WHERE ROWNUM <= 10;
+SELECT payment_method,
+COUNT(*) AS payment_count,
+SUM(payment_amount) AS total_paid_amount
+FROM ar_payments
+GROUP BY payment_method
+ORDER BY payment_method;
+SELECT payment_status,
+COUNT(*) AS payment_count,
+SUM(payment_amount) AS total_paid_amount
+FROM ar_payments
+GROUP BY payment_status;
+
+Step 6: Collection Targets
+
+CREATE TABLE ar_collection_targets (
+target_id NUMBER PRIMARY KEY,
+target_month DATE,
+target_amount NUMBER(15,2)
+);
+INSERT ALL
+INTO ar_collection_targets VALUES (1, DATE '2024-01-01', 28000000)
+INTO ar_collection_targets VALUES (2, DATE '2024-02-01', 28500000)
+INTO ar_collection_targets VALUES (3, DATE '2024-03-01', 29000000)
+INTO ar_collection_targets VALUES (4, DATE '2024-04-01', 29500000)
+INTO ar_collection_targets VALUES (5, DATE '2024-05-01', 30000000)
+INTO ar_collection_targets VALUES (6, DATE '2024-06-01', 30500000)
+INTO ar_collection_targets VALUES (7, DATE '2024-07-01', 31000000)
+INTO ar_collection_targets VALUES (8, DATE '2024-08-01', 31500000)
+INTO ar_collection_targets VALUES (9, DATE '2024-09-01', 32000000)
+INTO ar_collection_targets VALUES (10, DATE '2024-10-01', 32500000)
+INTO ar_collection_targets VALUES (11, DATE '2024-11-01', 33000000)
+INTO ar_collection_targets VALUES (12, DATE '2024-12-01', 33500000)
+INTO ar_collection_targets VALUES (13, DATE '2025-01-01', 34000000)
+INTO ar_collection_targets VALUES (14, DATE '2025-02-01', 34500000)
+INTO ar_collection_targets VALUES (15, DATE '2025-03-01', 35000000)
+INTO ar_collection_targets VALUES (16, DATE '2025-04-01', 35500000)
+INTO ar_collection_targets VALUES (17, DATE '2025-05-01', 36000000)
+INTO ar_collection_targets VALUES (18, DATE '2025-06-01', 36500000)
+INTO ar_collection_targets VALUES (19, DATE '2025-07-01', 37000000)
+INTO ar_collection_targets VALUES (20, DATE '2025-08-01', 37500000)
+INTO ar_collection_targets VALUES (21, DATE '2025-09-01', 38000000)
+INTO ar_collection_targets VALUES (22, DATE '2025-10-01', 38500000)
+INTO ar_collection_targets VALUES (23, DATE '2025-11-01', 39000000)
+INTO ar_collection_targets VALUES (24, DATE '2025-12-01', 39500000)
+INTO ar_collection_targets VALUES (25, DATE '2026-01-01', 40000000)
+INTO ar_collection_targets VALUES (26, DATE '2026-02-01', 40500000)
+INTO ar_collection_targets VALUES (27, DATE '2026-03-01', 41000000)
+INTO ar_collection_targets VALUES (28, DATE '2026-04-01', 41500000)
+INTO ar_collection_targets VALUES (29, DATE '2026-05-01', 42000000)
+INTO ar_collection_targets VALUES (30, DATE '2026-06-01', 42500000)
+INTO ar_collection_targets VALUES (31, DATE '2026-07-01', 43000000)
+INTO ar_collection_targets VALUES (32, DATE '2026-08-01', 43500000)
+INTO ar_collection_targets VALUES (33, DATE '2026-09-01', 44000000)
+SELECT * FROM dual;
+COMMIT;
+
+Target Validation
+
+SELECT COUNT(*) AS target_months
+FROM ar_collection_targets;
+SELECT *
+FROM ar_collection_targets
+ORDER BY target_month;
+
+Final Row Count Validation
+
+SELECT COUNT(*) AS department_count
+FROM ar_departments;
+SELECT COUNT(*) AS employee_count
+FROM ar_employees;
+SELECT COUNT(*) AS customer_count
+FROM ar_customers;
+SELECT COUNT(*) AS invoice_count
+FROM ar_invoices;
+SELECT COUNT(*) AS payment_count
+FROM ar_payments;
+SELECT COUNT(*) AS target_count
+FROM ar_collection_targets;
+
+Expected Row Counts
+Departments 5
+Employees 25
+Customers 500
+INVOICES 10,000
+PAYMENTS 8,000
+Targets 33
+
+Structure Validation
+
+DESC ar_departments;
+DESC ar_employees;
+DESC ar_customers;
+DESC ar_invoices;
+DESC ar_payments;
+DESC ar_collection_targets;
+
+Relationship Validation
+Customers without valid employee
+
+SELECT COUNT(*) AS customers_without_employee
+FROM ar_customers c
+LEFT JOIN ar_employees e
+ON c.assigned_employee_id = e.employee_id
+WHERE e.employee_id IS NULL;
+Invoices without valid customer
+SELECT COUNT(*) AS invoices_without_customer
+FROM ar_invoices i
+LEFT JOIN ar_customers c
+ON i.customer_id = c.customer_id
+WHERE c.customer_id IS NULL;
+Invoices without valid employee
+SELECT COUNT(*) AS invoices_without_employee
+FROM ar_invoices i
+LEFT JOIN ar_employees e
+ON i.employee_id = e.employee_id
+WHERE e.employee_id IS NULL;
+Payments without valid invoice
+SELECT COUNT(*) AS payments_without_invoice
+FROM ar_payments p
+LEFT JOIN ar_invoices i
+ON p.invoice_id = i.invoice_id
+WHERE i.invoice_id IS NULL;
+Payments without valid customer
+SELECT COUNT(*) AS payments_without_customer
+FROM ar_payments p
+LEFT JOIN ar_customers c
+ON p.customer_id = c.customer_id
+WHERE c.customer_id IS NULL;
+
+Expected result for all relationship checks:
+0
+
+BASIC FINANCE / AR KPIs
+
+Total invoices and invoice amount
+SELECT
+COUNT(*) AS total_invoices,
+SUM(invoice_amount) AS total_invoice_amount
+FROM ar_invoices;
+Total payments and paid amount
+SELECT
+COUNT(*) AS total_payments,
+SUM(payment_amount) AS total_paid_amount
+FROM ar_payments;
+Outstanding amount
+SELECT
+(SELECT SUM(invoice_amount)
+FROM ar_invoices)
+-
+(SELECT SUM(payment_amount)
+FROM ar_payments)
+AS outstanding_amount
+FROM dual;
+Collection rate
+SELECT
+ROUND(
+(
+SELECT SUM(payment_amount)
+FROM ar_payments
+)
+
+(
+SELECT SUM(invoice_amount)
+FROM ar_invoices
+)
+* 100,
+2
+) AS collection_rate
+FROM dual;
+
+
+Invoice Status Analysis
+
+SELECT
+invoice_status,
+COUNT(*) AS invoice_count,
+SUM(invoice_amount) AS invoice_amount
+FROM ar_invoices
+GROUP BY invoice_status
+ORDER BY invoice_status;
+
+Payment Method Analysis
+
+SELECT
+payment_method,
+COUNT(*) AS payment_count,
+SUM(payment_amount) AS total_paid_amount
+FROM ar_payments
+GROUP BY payment_method
+ORDER BY total_paid_amount DESC;
+
+Payment Status Analysis
+
+SELECT
+payment_status,
+COUNT(*) AS payment_count,
+SUM(payment_amount) AS total_paid_amount
+FROM ar_payments
+GROUP BY payment_status
+ORDER BY payment_status;
+
+Monthly Collection Analysis
+
+SELECT
+TO_CHAR(payment_date, 'YYYY-MM') AS payment_month,
+COUNT(*) AS payment_count,
+SUM(payment_amount) AS total_paid_amount
+FROM ar_payments
+GROUP BY TO_CHAR(payment_date, 'YYYY-MM')
+ORDER BY payment_month;
+
+Top 10 Customers By Invoice Amount
+
+SELECT *
+FROM
+(
+SELECT
+customer_id,
+COUNT(*) AS invoice_count,
+SUM(invoice_amount) AS total_invoice_amount
+FROM ar_invoices
+GROUP BY customer_id
+ORDER BY SUM(invoice_amount) DESC
+)
+WHERE ROWNUM <= 10;
+
+Top 10 Overdue Customers
+
+SELECT *
+FROM
+Finance / AR SQL Project • Page 10
+(
+SELECT
+customer_id,
+COUNT(*) AS overdue_invoice_count,
+SUM(invoice_amount) AS overdue_amount
+FROM ar_invoices
+WHERE invoice_status = 'Overdue'
+GROUP BY customer_id
+ORDER BY SUM(invoice_amount) DESC
+)
+WHERE ROWNUM <= 10;
+
+Top 10 Customers By Outstanding Amount
+
+SELECT *
+FROM
+(
+SELECT
+i.customer_id,
+SUM(i.invoice_amount) AS invoice_amount,
+NVL(SUM(p.payment_amount), 0) AS paid_amount,
+SUM(i.invoice_amount)
+- NVL(SUM(p.payment_amount), 0)
+AS outstanding_amount
+FROM ar_invoices i
+LEFT JOIN ar_payments p
+ON i.invoice_id = p.invoice_id
+GROUP BY i.customer_id
+ORDER BY
+SUM(i.invoice_amount)
+- NVL(SUM(p.payment_amount), 0) DESC
+)
+WHERE ROWNUM <= 10;
+
+Top 10 Customers By Collection Rate
+
+SELECT *
+FROM
+(
+SELECT
+i.customer_id,
+SUM(i.invoice_amount) AS invoice_amount,
+NVL(SUM(p.payment_amount), 0) AS paid_amount,
+ROUND(
+NVL(SUM(p.payment_amount), 0)
+/ SUM(i.invoice_amount) * 100,
+2
+) AS collection_rate
+FROM ar_invoices i
+LEFT JOIN ar_payments p
+ON i.invoice_id = p.invoice_id
+GROUP BY i.customer_id
+ORDER BY collection_rate DESC
+)
+WHERE ROWNUM <= 10;
+
+Average Days To Pay
+
+SELECT
+ROUND(
+AVG(payment_date - invoice_date),
+2
+) AS average_days_to_pay
+FROM ar_payments p
+JOIN ar_invoices i
+ON p.invoice_id = i.invoice_id;
+
+Average Days Vs Due Date
+
+SELECT
+ROUND(
+AVG(payment_date - due_date),
+2
+) AS avg_days_after_due
+FROM ar_payments p
+JOIN ar_invoices i
+ON p.invoice_id = i.invoice_id;
+
+Aging Analysis
+
+SELECT
+CASE
+WHEN due_date >= TRUNC(SYSDATE)
+THEN 'CURRENT'
+WHEN TRUNC(SYSDATE) - due_date BETWEEN 1 AND 30
+THEN '1-30 DAYS'
+WHEN TRUNC(SYSDATE) - due_date BETWEEN 31 AND 60
+THEN '31-60 DAYS'
+WHEN TRUNC(SYSDATE) - due_date BETWEEN 61 AND 90
+THEN '61-90 DAYS'
+ELSE '90+ DAYS'
+END AS aging_bucket,
+COUNT(*) AS invoice_count,
+SUM(invoice_amount) AS invoice_amount
+FROM ar_invoices
+WHERE invoice_status IN
+(
+'Open',
+'Overdue',
+'Partially Paid'
+)
+GROUP BY
+CASE
+WHEN due_date >= TRUNC(SYSDATE)
+THEN 'CURRENT'
+WHEN TRUNC(SYSDATE) - due_date BETWEEN 1 AND 30
+THEN '1-30 DAYS'
+WHEN TRUNC(SYSDATE) - due_date BETWEEN 31 AND 60
+THEN '31-60 DAYS'
+WHEN TRUNC(SYSDATE) - due_date BETWEEN 61 AND 90
+THEN '61-90 DAYS'
+ELSE '90+ DAYS'
+END
+ORDER BY aging_bucket;
+
+Employee Collection Analysis
+
+SELECT
+Finance / AR SQL Project • Page 12
+e.employee_id,
+e.job_role,
+e.region,
+COUNT(DISTINCT i.invoice_id) AS invoice_count,
+SUM(i.invoice_amount) AS invoice_amount,
+NVL(SUM(p.payment_amount), 0) AS paid_amount,
+SUM(i.invoice_amount)
+- NVL(SUM(p.payment_amount), 0)
+AS outstanding_amount
+FROM ar_employees e
+LEFT JOIN ar_invoices i
+ON e.employee_id = i.employee_id
+LEFT JOIN ar_payments p
+ON i.invoice_id = p.invoice_id
+GROUP BY
+e.employee_id,
+e.job_role,
+e.region
+ORDER BY paid_amount DESC;
+Department Analysis
+SELECT
+d.department_id,
+d.department_name,
+COUNT(DISTINCT e.employee_id) AS employee_count,
+COUNT(DISTINCT i.invoice_id) AS invoice_count,
+SUM(i.invoice_amount) AS invoice_amount,
+NVL(SUM(p.payment_amount), 0) AS paid_amount
+FROM ar_departments d
+LEFT JOIN ar_employees e
+ON d.department_id = e.department_id
+LEFT JOIN ar_invoices i
+ON e.employee_id = i.employee_id
+LEFT JOIN ar_payments p
+ON i.invoice_id = p.invoice_id
+GROUP BY
+d.department_id,
+d.department_name
+ORDER BY paid_amount DESC;
+
+Region Analysis
+
+SELECT
+c.region,
+COUNT(DISTINCT c.customer_id) AS customer_count,
+COUNT(DISTINCT i.invoice_id) AS invoice_count,
+SUM(i.invoice_amount) AS invoice_amount,
+NVL(SUM(p.payment_amount), 0) AS paid_amount
+Finance / AR SQL Project • Page 13
+FROM ar_customers c
+LEFT JOIN ar_invoices i
+ON c.customer_id = i.customer_id
+LEFT JOIN ar_payments p
+ON i.invoice_id = p.invoice_id
+GROUP BY c.region
+ORDER BY paid_amount DESC;
+
+Project Final Kpi Check
+
+SELECT
+(SELECT COUNT(*) FROM ar_departments)
+AS departments,
+(SELECT COUNT(*) FROM ar_employees)
+AS employees,
+(SELECT COUNT(*) FROM ar_customers)
+AS customers,
+(SELECT COUNT(*) FROM ar_invoices)
+AS invoices,
+(SELECT COUNT(*) FROM ar_payments)
+AS payments,
+(SELECT COUNT(*) FROM ar_collection_targets)
+AS target_months
+FROM dual;
+
