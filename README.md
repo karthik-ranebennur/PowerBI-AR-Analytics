@@ -76,6 +76,6 @@ The objective of this project is to provide a clear view of accounts receivable 
 
  Author
 
-Karthik Ranebennur
+Karthik R K
 
 Finance & Accounting Professional | Power BI | SQL | Data Analytics
