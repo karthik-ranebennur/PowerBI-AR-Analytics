@@ -78,4 +78,10 @@ The objective of this project is to provide a clear view of accounts receivable 
 
 Karthik R K
 
+Dashboard Screenshots
+1. AR Analytics - Executive Summary
+2. Customer & Invoice Details
+3. Customer Details
+4. Aging & Collection Analysis
+
 Finance & Accounting Professional | Power BI | SQL | Data Analytics
